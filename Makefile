@@ -21,7 +21,7 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 lint:
-	flake8 plasma
+	flake8 plasma tests
 
 test:
 	python -m pytest
