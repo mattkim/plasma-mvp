@@ -1,7 +1,4 @@
-import pytest
-import rlp
-from plasma.child_chain.transaction import Transaction, UnsignedTransaction
-from plasma.config import plasma_config
+from plasma.child_chain.transaction import Transaction
 
 
 def test_transaction(t, u, assert_failed):
@@ -13,10 +10,10 @@ def test_transaction(t, u, assert_failed):
     oldowner1, oldowner2 = t.a1, t.a2
     key1, key2 = t.k1, t.k2
     tx = Transaction(blknum1, txindex1, oindex1,
-                blknum2, txindex2, oindex2,
-                newowner1, amount1,
-                newowner2, amount2,
-                fee)
+                     blknum2, txindex2, oindex2,
+                     newowner1, amount1,
+                     newowner2, amount2,
+                     fee)
     assert tx.blknum1 == blknum1
     assert tx.txindex1 == txindex1
     assert tx.oindex1 == oindex1
@@ -30,6 +27,6 @@ def test_transaction(t, u, assert_failed):
     assert tx.sig1 == b'\x00' * 65
     assert tx.sig2 == b'\x00' * 65
     tx.sign1(key1)
-    assert tx.sender1 ==  oldowner1
+    assert tx.sender1 == oldowner1
     tx.sign2(key2)
-    assert tx.sender2 ==  oldowner2
+    assert tx.sender2 == oldowner2
