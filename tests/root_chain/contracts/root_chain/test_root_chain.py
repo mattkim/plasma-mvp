@@ -82,7 +82,7 @@ def test_start_exit(t, root_chain, assert_tx_failed):
     assert root_chain.getExit(priority3) == ['0x' + owner.hex(), 100, [4, 0, 0]]
 
 
-def test_challenge_exit(t, u, root_chain):
+def test_challenge_exit(t, u, root_chain, assert_tx_failed):
     owner, value_1, key = t.a1, 100, t.k1
     null_address = b'\x00' * 20
     tx1 = Transaction(0, 0, 0, 0, 0, 0,
@@ -109,10 +109,12 @@ def test_challenge_exit(t, u, root_chain):
     assert root_chain.exitIds(exit_id) == exit_id
     root_chain.challengeExit(exit_id, [2, 0, 0], tx_bytes2, proof, sigs, confirmSig)
     assert root_chain.exits(exit_id) == ['0x0000000000000000000000000000000000000000', 0]
-    assert root_chain.exitIds(exit_id) == 0
+    assert root_chain.exitIds(exit_id) == 1000000000
+    # Exit cannot be resubmitted after a successful challenge
+    assert_tx_failed(lambda: root_chain.startExit([1, 0, 0], tx_bytes1, proof, sigs, sender=key))
 
 
-def test_finalize_exits(t, u, root_chain):
+def test_finalize_exits(t, u, root_chain, assert_tx_failed):
     two_weeks = 60 * 60 * 24 * 14
     owner, value_1, key = t.a1, 100, t.k1
     null_address = b'\x00' * 20
@@ -134,4 +136,6 @@ def test_finalize_exits(t, u, root_chain):
     post_balance = t.chain.head_state.get_balance(owner)
     assert post_balance == pre_balance + value_1
     assert root_chain.exits(exit_id) == ['0x0000000000000000000000000000000000000000', 0]
-    assert root_chain.exitIds(exit_id) == 0
+    assert root_chain.exitIds(exit_id) == 1000000000
+    # Exit cannot be resubmitted after it's been finalized
+    assert_tx_failed(lambda: root_chain.startExit([1, 0, 0], tx_bytes1, proof, sigs, sender=key))
