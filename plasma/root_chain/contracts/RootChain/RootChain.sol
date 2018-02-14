@@ -140,7 +140,6 @@ contract RootChain {
         uint256 exitId = txPos[0].mul(priority);
         priority = priority.mul(Math.max(txPos[0], weekOldBlock));
         require(exitIds[exitId] == 0);
-        require(exits[priority].amount == 0);
         exitIds[exitId] = priority;
         exitsQueue.insert(priority);
         exits[priority] = exit({
@@ -167,7 +166,6 @@ contract RootChain {
         require(owner == ECRecovery.recover(confirmationHash, confirmationSig));
         require(merkleHash.checkMembership(txPos[1], childChain[txPos[0]].root, proof));
         delete exits[priority];
-        delete exitIds[exitId];
     }
 
     function finalizeExits()
@@ -183,7 +181,6 @@ contract RootChain {
             currentExit.owner.transfer(currentExit.amount);
             uint256 priority = exitsQueue.delMin();
             delete exits[priority];
-            delete exitIds[exitId];
             currentExit = exits[exitsQueue.getMin()];
         }
     }
