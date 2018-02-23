@@ -7,3 +7,6 @@ dist/
 
 # Testing
 .cache/
+
+.idea
+env

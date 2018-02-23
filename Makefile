@@ -32,3 +32,7 @@ lint:
 .PHONY: test
 test:
 	python -m pytest
+
+.PHONEY: test-kw
+test-kw:
+	python -m pytest -k $(KW)
