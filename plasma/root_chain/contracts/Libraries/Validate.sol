@@ -4,6 +4,7 @@ import './ECRecovery.sol';
 
 
 library Validate {
+
     function checkSigs(bytes32 txHash, bytes32 rootHash, uint256 inputCount, bytes sigs)
         internal
         view
@@ -25,5 +26,20 @@ library Validate {
             bool check2 = ECRecovery.recover(txHash, sig2) == ECRecovery.recover(confirmationHash, confSig2);
             return check1 && check2;
         }
+    }
+
+    function checkSigsWithConfSig1(bytes32 txHash, bytes32 rootHash, bytes sigs)
+        internal
+        view
+        returns (bool)
+    {
+        require(sigs.length <= 260);
+        require(sigs.length % 65 == 0);
+        bytes memory sig1 = ByteUtils.slice(sigs, 0, 65);
+        bytes memory sig2 = ByteUtils.slice(sigs, 65, 65);
+        bytes memory confSig1 = ByteUtils.slice(sigs, 130, 65);
+        bytes32 confirmationHash = keccak256(txHash, sig1, sig2, rootHash);
+        return true;
+        return ECRecovery.recover(txHash, sig1) == ECRecovery.recover(confirmationHash, confSig1);
     }
 }

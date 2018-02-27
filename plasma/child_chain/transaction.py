@@ -1,5 +1,5 @@
 import rlp
-from rlp.sedes import big_endian_int, binary
+from rlp.sedes import big_endian_int
 from ethereum import utils
 from plasma.utils.utils import get_sender, sign
 
@@ -18,8 +18,6 @@ class Transaction(rlp.Serializable):
         ('newowner2', utils.address),
         ('amount2', big_endian_int),
         ('fee', big_endian_int),
-        ('sig1', binary),
-        ('sig2', binary),
     ]
 
     def __init__(self, blknum1, txindex1, oindex1,
@@ -52,8 +50,12 @@ class Transaction(rlp.Serializable):
         self.fee = fee
 
     @property
+    def unsigned(self):
+        return UnsignedTransaction
+
+    @property
     def hash(self):
-        return utils.sha3(rlp.encode(self, UnsignedTransaction))
+        return utils.sha3(rlp.encode(self, self.unsigned))
 
     @property
     def merkle_hash(self):
