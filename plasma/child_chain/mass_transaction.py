@@ -26,9 +26,23 @@ class MassTransaction(rlp.Serializable):
             'sig',
         ])
 
+    @classmethod
+    def hashable_sedes(cls):
+        """Create a new sedes considering only fields for hashing."""
+        class SerializableExcluded(cls):
+            fields = [
+                ('transaction_set', CountableList(
+                    ExitTransaction.exclude([
+                        'confirm_sig1',
+                        'confirm_sig2',
+                    ]))),
+            ]
+
+        return SerializableExcluded
+
     @property
     def hash(self):
-        return utils.sha3(rlp.encode(self, self.unsigned))
+        return utils.sha3(rlp.encode(self, MassTransaction.hashable_sedes()))
 
     # The owner of the utxo wants to exit,
     # The owner of the utxo theorhetically already
@@ -57,29 +71,6 @@ class MassTransaction(rlp.Serializable):
 
         self.transaction_indexes[etx.tx.hash] = len(self.transaction_set)
         self.transaction_set.append(etx)
-
-    # The owner of the inputs says it's okay to exit
-    # Just use txindex for now as a convenience
-    def confirm_sig1(self, txindex, private):
-        etx = self.transaction_set[txindex]
-        etx.confirm_sig1 = self.confirm_sig(etx, private)
-
-    def confirm_sig2(self, txindex, private):
-        etx = self.transaction_set[txindex]
-        etx.confirm_sig2 = self.confirm_sig(etx, private)
-
-    def confirm_sig(self, etx, private):
-        if not self.finished:
-            # The mass transaction needs to be in a state where we are not accepting
-            # any more transactions.
-            raise RuntimeError
-
-        # At this point we don't really know if this confirmation is legit,
-        # meaning that it is the owner of the input, but we will send it
-        # to the contract, which will validate this.
-        # Also note that the tx hash is unsigned
-        # The mass transaction root hash will include the signatures.
-        return plasma_utils.confirm_tx(etx.tx, self.hash, private)
 
     def sign(self):
         self.sig = plasma_utils.sign(self.hash, self.authority.private_key)

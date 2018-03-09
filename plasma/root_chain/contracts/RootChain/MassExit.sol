@@ -15,16 +15,14 @@ contract MassExit is RootChain {
 
     event LogBytes(bytes item);
     event LogBytes32(bytes32 item);
+    event LogAddress(address addr);
 
     function MassExit() public {}
 
-    function startMassExit(bytes massExitBytes, bytes sig) public {
+    function startMassExit(bytes massExitBytes, bytes32 rootHash, bytes sig) public {
         var massExit = massExitBytes.toRLPItem().toList();
 
         require(massExit.length == 1);
-
-        // Used to validate transaction confirmation signatures
-        var rootHash = keccak256(massExitBytes);
 
         // Validate transactions
         var txList = massExit[0].toList();
@@ -35,7 +33,6 @@ contract MassExit is RootChain {
             var sig1 = exitTx[1].toData();
             var sig2 = exitTx[2].toData();
             var confirm_sig1 = exitTx[6].toData();
-            //bytes memory confirm_sig1 = "\xf3";
 
             var txHash = keccak256(tx);
 

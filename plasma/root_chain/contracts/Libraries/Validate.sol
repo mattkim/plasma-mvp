@@ -39,7 +39,9 @@ library Validate {
         bytes memory sig2 = ByteUtils.slice(sigs, 65, 65);
         bytes memory confSig1 = ByteUtils.slice(sigs, 130, 65);
         bytes32 confirmationHash = keccak256(txHash, sig1, sig2, rootHash);
-        return true;
-        return ECRecovery.recover(txHash, sig1) == ECRecovery.recover(confirmationHash, confSig1);
+
+        var addr1 = ECRecovery.recover(txHash, sig1);
+        var addr2 = ECRecovery.recover(confirmationHash, confSig1);
+        return addr1 == addr2;
     }
 }

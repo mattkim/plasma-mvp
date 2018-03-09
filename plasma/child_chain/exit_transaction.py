@@ -42,7 +42,7 @@ class ExitTransaction(rlp.Serializable):
             sig2
         )
 
-        # It's duplicated but it will be useful later when doing sig validation.
+        # For convenience later in the MassExit contract
         self.sig1 = sig1
         self.sig2 = sig2
 

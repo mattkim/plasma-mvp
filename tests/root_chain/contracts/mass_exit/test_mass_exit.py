@@ -5,6 +5,7 @@ import rlp
 from plasma.child_chain.account import Account
 from plasma.child_chain.mass_transaction import MassTransaction
 from plasma.child_chain.root_node import RootNode
+from plasma.utils import utils as plasma_utils
 
 
 @pytest.fixture
@@ -100,12 +101,9 @@ def test_mass_exit(t, mass_exit):
 
         account = users.get(sender)
 
-        mt.confirm_sig1(i, account.private_key)
+        etx.confirm_sig1 = plasma_utils.confirm_tx(etx.tx, mt.hash, account.private_key)
 
     mt.sign()
 
     # Now that everything is signed attempt the exit on the plasma contract
-    mass_exit.startMassExit(rlp.encode(mt, mt.unsigned), mt.sig)
-
-    # import pdb
-    # pdb.set_trace()
+    mass_exit.startMassExit(rlp.encode(mt, mt.unsigned), mt.hash, mt.sig)
